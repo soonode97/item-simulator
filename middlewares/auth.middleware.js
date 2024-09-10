@@ -3,9 +3,8 @@ import { createAccessToken, validateToken } from '../src/utils/tokens/tokens.js'
 
 export default async function (req, res, next) {
     try {
-        console.log(req.cookies);
         // request 헤더로 전달받은 authorization 쿠키를 받아온다.
-        const { authorization } = req.cookies;
+        const authorization = req.headers["authorization"];
         
         // access token이 만료되어 authorization의 값이 없다면 token 재발급을 요청한다.
         // 만약 refresh token도 만료되었다면 사용자 인증 만료 에러메시지를 발생시킨다.
@@ -39,7 +38,7 @@ export default async function (req, res, next) {
 
                 const newAccessToken = createAccessToken(userInfo.userId);
 
-                res.cookie('authorization', `Bearer ${newAccessToken}`);
+                // res.cookie('authorization', `Bearer ${newAccessToken}`);
                 
                 console.log('message: Access Token을 정상적으로 새롭게 발급했습니다.');
             }
@@ -74,7 +73,6 @@ export default async function (req, res, next) {
 
         // req.user에 DB에서 조회된 유저를 저장하여 다음 미들웨어에 보낸다.
         req.user = user;
-        console.log(`인증된 유저 : ${req.user}`);
 
         // 인증을 마친 후 다음 미들웨어 수행하도록 한다.
         next();

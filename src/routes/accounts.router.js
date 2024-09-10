@@ -142,7 +142,7 @@ router.post('/accounts/log-in', async (req, res, next)=> {
     // .env에 저장한 액세스 키를 가져와 액세스 토큰을 생성한다.
     const accessToken = createAccessToken(account.accountsId);
 
-    res.cookie('authorization', `Bearer ${accessToken}`); // Access Token을 Cookie에 전달한다.
+    // res.cookie('authorization', `Bearer ${accessToken}`); // Access Token을 Cookie에 전달한다.
 
     return res.status(200).json({message: '로그인에 성공하였습니다.',
         data: {userId},

@@ -134,6 +134,7 @@ model inventoryItems {
   inventoryItemsId Int @id @default(autoincrement()) @map("inventoryItemsId")
   inventoriesId Int @map("inventoriesId")
   item_code Int @map("item_code")
+  item_name String @map("item_name")
   item_quantity Int @default(0) @map("item_quantity")
   
   inventory inventories @relation(fields: [inventoriesId], references: [inventoriesId], onDelete: Cascade)

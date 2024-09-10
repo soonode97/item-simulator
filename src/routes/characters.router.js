@@ -15,9 +15,7 @@ router.post('/characters', authMiddleware, async (req, res, next) => {
   });
 
   if (isExistCharacter) {
-    return res
-      .status(409)
-      .json({ errorMessage: '이미 존재하는 캐릭터명입니다.' });
+    return res.status(409).json({ errorMessage: '이미 존재하는 캐릭터명입니다.' });
   }
 
   const [character, characterInfo, inventory, inventoryInfo] = await prisma.$transaction(
@@ -37,16 +35,18 @@ router.post('/characters', authMiddleware, async (req, res, next) => {
 
       const inventory = await tx.inventories.create({
         data: {
-          charactersId: character.charactersId
-        }
+          charactersId: character.charactersId,
+        },
       });
 
       const inventoryInfo = await tx.inventoryInfos.createMany({
-        data: [{ 
-          inventoriesId: inventory.inventoriesId,
-          name: "Basic_Inventory",
-          size: 100,
-        }],
+        data: [
+          {
+            inventoriesId: inventory.inventoriesId,
+            name: 'Basic_Inventory',
+            size: 100,
+          },
+        ],
       });
 
       return [character, characterInfo, inventory, inventoryInfo];
@@ -60,41 +60,24 @@ router.post('/characters', authMiddleware, async (req, res, next) => {
 });
 
 /** 캐릭터 상세 조회 API */
-router.get(
-  '/characters/:charactersId',
-  authMiddleware,
-  async (req, res, next) => {
-    try {
-      const { accountsId } = req.user;
-      const { charactersId } = req.params;
+router.get('/characters/:charactersId', authMiddleware, async (req, res, next) => {
+  try {
+    const { accountsId } = req.user;
+    const { charactersId } = req.params;
 
-      const character = await prisma.characters.findFirst({
-        where: { charactersId: +charactersId },
-      });
+    const character = await prisma.characters.findFirst({
+      where: { charactersId: +charactersId },
+    });
 
-      if (!character) {
-        return res
-          .status(404)
-          .json({ errorMessage: '캐릭터가 존재하지 않습니다.' });
-      }
+    if (!character) {
+      return res.status(401).json({ errorMessage: '캐릭터가 존재하지 않습니다.' });
+    }
 
-      const characterInfo = await prisma.characterInfos.findFirst({
-        where: { charactersId: +charactersId },
-      });
+    const characterInfo = await prisma.characterInfos.findFirst({
+      where: { charactersId: +charactersId },
+    });
 
-      if (character.accountsId !== +accountsId) {
-        return res.status(200).json({
-          character: {
-            charactersId: character.charactersId,
-          },
-          characterInfo: {
-            nickname: characterInfo.nickname,
-            health: characterInfo.health,
-            power: characterInfo.power,
-          },
-        });
-      }
-
+    if (character.accountsId !== +accountsId) {
       return res.status(200).json({
         character: {
           charactersId: character.charactersId,
@@ -103,80 +86,80 @@ router.get(
           nickname: characterInfo.nickname,
           health: characterInfo.health,
           power: characterInfo.power,
-          money: characterInfo.money,
         },
       });
-
-    } catch (err) {
-      next(err);
     }
-  },
-);
+
+    return res.status(200).json({
+      character: {
+        charactersId: character.charactersId,
+      },
+      characterInfo: {
+        nickname: characterInfo.nickname,
+        health: characterInfo.health,
+        power: characterInfo.power,
+        money: characterInfo.money,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 /** 캐릭터 삭제 API */
-router.delete(
-  '/characters/:charactersId',
-  authMiddleware,
-  async (req, res, next) => {
-    try {
-      const { charactersId } = req.params;
-      const { accountsId } = req.user;
+router.delete('/characters/:charactersId', authMiddleware, async (req, res, next) => {
+  try {
+    const { charactersId } = req.params;
+    const { accountsId } = req.user;
 
-      const character = await prisma.characters.findFirst({
-        where: { charactersId: +charactersId },
-      });
+    const character = await prisma.characters.findFirst({
+      where: { charactersId: +charactersId },
+    });
 
-      if (!character) {
-        return res
-          .status(404)
-          .json({ errorMessage: '캐릭터가 존재하지 않습니다.' });
-      }
-
-      if (character.accountsId !== accountsId) {
-        return res
-          .status(403)
-          .json({ errorMessage: '계정 권한이 없어 캐릭터 삭제가 불가합니다.' });
-      }
-
-      await prisma.characters.delete({
-        where: {
-          charactersId: +charactersId,
-        },
-      });
-
-      // await prisma.$transaction(
-      //   async (tx) => {
-      //     await tx.characterInfos.delete({
-      //       where: {
-      //         charactersId: +charactersId,
-      //       },
-      //     });
-
-      //     await tx.inventories.delete({
-      //       where: {
-      //         charactersId: +charactersId,
-      //       },
-      //     });
-
-      //     await tx.characters.delete({
-      //       where: {
-      //         charactersId: +charactersId,
-      //       },
-      //     });
-      //   },
-      //   {
-      //     isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
-      //   },
-      // );
-
-      return res
-        .status(201)
-        .json({ message: '캐릭터가 정상적으로 삭제되었습니다.' });
-    } catch (err) {
-      next(err);
+    if (!character) {
+      return res.status(401).json({ errorMessage: '캐릭터가 존재하지 않습니다.' });
     }
-  },
-);
+
+    if (character.accountsId !== accountsId) {
+      return res.status(403).json({ errorMessage: '계정 권한이 없어 캐릭터 삭제가 불가합니다.' });
+    }
+
+    await prisma.characters.delete({
+      where: {
+        charactersId: +charactersId,
+      },
+    });
+
+    // await prisma.$transaction(
+    //   async (tx) => {
+    //     await tx.characterInfos.delete({
+    //       where: {
+    //         charactersId: +charactersId,
+    //       },
+    //     });
+
+    //     await tx.inventories.delete({
+    //       where: {
+    //         charactersId: +charactersId,
+    //       },
+    //     });
+
+    //     await tx.characters.delete({
+    //       where: {
+    //         charactersId: +charactersId,
+    //       },
+    //     });
+    //   },
+    //   {
+    //     isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
+    //   },
+    // );
+
+    return res.status(201).json({ message: '캐릭터가 정상적으로 삭제되었습니다.' });
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.post('/characters/test', authMiddleware, async (req, res, next) => {
   const { accountsId } = req.user;
