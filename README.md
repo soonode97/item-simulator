@@ -1,5 +1,5 @@
 # item-simulator
-REST API를 활용한 CRUD 아이템 시뮬레이터
+REST API를 활용한 아이템 시뮬레이터
 
 ## 1. 프로젝트 기능과 목적
 해당 프로젝트는 Node.js 기반으로 express.js의 REST API를 활용하여 계정, 캐릭터, 아이템을 생성하고 장착하여 장착 시뮬레이션을 할 수 있습니다.
