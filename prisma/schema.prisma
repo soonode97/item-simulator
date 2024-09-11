@@ -13,6 +13,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum equip_part {
+  HEAD
+  CHEST
+  HANDS
+  LEGS
+  FEET
+  WEAPON
+  ACCESSORY
+}
+
 model accounts {
   accountsId Int @id @default(autoincrement()) @map("accountsId")
   userId String @unique @map("userId")
@@ -47,6 +57,7 @@ model characters {
 
   characterInfos characterInfos?
   inventories inventories[]
+  equipments equipments[]
 
   account accounts @relation(fields: [accountsId], references: [accountsId], onDelete: Cascade)
   @@map("characters")
@@ -84,7 +95,8 @@ model items {
   item_code Int @id @default(autoincrement()) @map("item_code")
   item_name String @map("item_name")
   item_part String @map("item_part")
-  item_stat Json @map("item_stat")
+  item_health Int @map("item_health")
+  item_power Int @map("item_power")
   item_price Int @map("item_price")
   item_desc String @map("item_desc")
   createdAt DateTime @default(now()) @map("createdAt")
@@ -140,4 +152,16 @@ model inventoryItems {
   inventory inventories @relation(fields: [inventoriesId], references: [inventoriesId], onDelete: Cascade)
 
   @@map("inventoryItems")
+}
+
+model equipments {
+  equipmentsId Int @id @default(autoincrement()) @map("equipmentsId")
+  charactersId Int @map("charactersId")
+  item_code Int? @map("item_code")
+  item_name String? @map("item_name")
+  item_part equip_part? @map("item_part")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  character characters @relation(fields: [charactersId], references: [charactersId], onDelete: Cascade)
 }

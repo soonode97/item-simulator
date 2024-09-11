@@ -10,25 +10,10 @@ export function createAccessToken(id) {
   const accessToken = jwt.sign(
     { accountsId: +id }, // JWT 데이터
     process.env.MY_SECRET_ACCESS_KEY, // Access Token의 비밀 키
-    { expiresIn: '30m' }, // Access Token이 30분 뒤에 만료되도록 설정합니다.
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRED_TIME }, // Access Token이 설정된 시간 뒤에 만료되도록 설정합니다.
   );
 
   return accessToken;
-}
-
-/**
- * 리프레시 토큰을 발급하는 함수
- * @param {*} id 유저의 아이디를 받는다
- * @returns 발급된 리프레시 토큰을 반환한다
- */
-export function createRefreshToken(id) {
-  const refreshToken = jwt.sign(
-    { accountsId: +id }, // JWT 데이터
-    process.env.MY_SECRET_REFRESH_KEY, // Refresh Token의 비밀 키
-    { expiresIn: '1d' }, // Refresh Token이 1일 뒤에 만료되도록 설정합니다.
-  );
-
-  return refreshToken;
 }
 
 /**

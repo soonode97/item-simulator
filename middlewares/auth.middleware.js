@@ -6,42 +6,8 @@ export default async function (req, res, next) {
         // request 헤더로 전달받은 authorization 쿠키를 받아온다.
         const authorization = req.headers["authorization"];
         
-        // access token이 만료되어 authorization의 값이 없다면 token 재발급을 요청한다.
-        // 만약 refresh token도 만료되었다면 사용자 인증 만료 에러메시지를 발생시킨다.
         if(!authorization) {
-
-            const {authorization} = async function (req, res, next) {
-                const {refreshToken} = req.cookies;
-                
-                if(!refreshToken) {
-                    throw new Error('사용자 인증이 만료되어 로그인이 필요합니다.');
-                }
-
-                // 리프레시 토큰의 값이 유효한지 확인
-                const payload = validateToken(refreshToken, process.env.MY_SECRET_REFRESH_KEY);
-                
-                if(payload === null) {
-                    throw new Error('유효한 토큰이 아닙니다.');
-                }
-
-                const userInfo = prisma.tokenStorage.findFirst({
-                    where: {accountsId: accountsId,
-                        expiredAt: {
-                            gt: Date.now()
-                        }
-                    }
-                });
-
-                if(!userInfo) {
-                    throw new Error('유효한 refresh token이 없습니다.');
-                }
-
-                const newAccessToken = createAccessToken(userInfo.userId);
-
-                // res.cookie('authorization', `Bearer ${newAccessToken}`);
-                
-                console.log('message: Access Token을 정상적으로 새롭게 발급했습니다.');
-            }
+            throw new Error('요청한 사용자의 토큰이 존재하지 않습니다.');
         }
 
         // authorization header 값에서 토큰 타입과 토큰을 분리한다.
